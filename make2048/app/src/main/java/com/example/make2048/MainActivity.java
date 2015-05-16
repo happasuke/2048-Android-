@@ -26,7 +26,7 @@ public class MainActivity extends Activity implements alias{
 
     public void onClickStart(View v){
         //ボタン等が消えるアニメーション
-        for(int i=0;i<10;i++){
+        for(int i=0;i<5;i++){
             try{
                 Thread.sleep(sleep_time);
             }catch(Exception e){

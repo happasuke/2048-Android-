@@ -100,25 +100,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         setResources();
         paint = new Paint();
 
-        table_size = 4;
+        table_size = 3;
         leastDistance = 50;
     }
 
 
     private void init(){
         point = 0;
+
         isTouchProcess = false;
         random = new Random();
         mode = START_GAME;
-        CELL_WIDTH = getWidth()/5;
-        CELL_START_X = getWidth()/10;
-        CELL_START_Y = getHeight()/10;
+        CELL_WIDTH = getWidth()/4;
+        CELL_START_X = getWidth()/8;
+        CELL_START_Y = getHeight()/8;
 
         m = new Map(table_size);
 
         //CELLの画像サイズ変更用
         Matrix matrix = new Matrix();
         float widthScale = (float)number_img[0].getWidth()/(float)getWidth();
+        widthScale *= 1.2;
         Log.d("donatu","widthScale:"+widthScale);
         matrix.postScale(widthScale,widthScale);
 
@@ -214,12 +216,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                 Log.d("donatu", "flick under");
                                 direction = DOWN;
 
-                                for (int i = 0; i < 4; i++) {
-                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
-                                    for (int j = 3; j >= 0; j--) {
+                                for (int i = 0; i < 3; i++) {
+                                    for (int k = 0; k < 3; k++) markMap[k] = 0;
+                                    for (int j = 2; j >= 0; j--) {
                                         if (m.getCell(i, j) > 0) {
                                             t = j - 1;
-                                            while (t != 2) {
+                                            while (t != 1) {
                                                 ++t;
                                                 if (m.getCell(i, t) == m.getCell(i, t + 1) && markMap[t + 1] == 0) {
                                                     markMap[t + 1] = 1;
@@ -243,9 +245,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                 Log.d("donatu", "flick upper");
                                 direction = UP;
 
-                                for (int i = 0; i < 4; i++) {
-                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
-                                    for (int j = 1; j < 4; j++) {
+                                for (int i = 0; i < 3; i++) {
+                                    for (int k = 0; k < 3; k++) markMap[k] = 0;
+                                    for (int j = 1; j < 3; j++) {
                                         if (m.getCell(i, j) > 0) {
                                             t = j + 1;
                                             while (t != 1) {
@@ -276,12 +278,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                 Log.d("donatu", "flick right");
                                 direction = RIGHT;
 
-                                for (int i = 0; i < 4; i++) {
-                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
+                                for (int i = 0; i < 3; i++) {
+                                    for (int k = 0; k < 3; k++) markMap[k] = 0;
                                     for (int j = 2; j >= 0; j--) {
                                         if (m.getCell(j, i) > 0) {
                                             t = j - 1;
-                                            while (t != 2) {
+                                            while (t != 1) {
                                                 ++t;
                                                 if (m.getCell(t, i) == m.getCell(t + 1, i) && markMap[t + 1] == 0) {
                                                     markMap[t + 1] = 1;
@@ -305,9 +307,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                 Log.d("donatu", "flick left");
                                 direction = LEFT;
 
-                                for (int i = 0; i < 4; i++) {
-                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
-                                    for (int j = 1; j < 4; j++) {
+                                for (int i = 0; i < 3; i++) {
+                                    for (int k = 0; k < 3; k++) markMap[k] = 0;
+                                    for (int j = 1; j < 3; j++) {
                                         if (m.getCell(j, i) > 0) {
                                             t = j + 1;
                                             while (t != 1) {
@@ -333,6 +335,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
                         if (isMoved == true) {
                             m.genCell();
+                            point += m.detectScore();
+
                             isMoved = false;
                         }
 
@@ -348,12 +352,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         }else if(mode==END_GAME){
             float x = event.getX();
             float y = event.getY();
+
+            try{
+                Thread.sleep(200);
+            }catch(Exception e){
+
+            }
+
             if(getWidth()/2-restart_img.getWidth()/2<x && getWidth()/2+restart_img.getWidth()/2>x){
                 if(getHeight()/2<y && getHeight()/2+restart_img.getHeight()>y){
                     restartButtonTouched = true;
                     mode = RESET_GAME;
                 }
             }
+
         }
 
         return true;
@@ -372,6 +384,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             drawEndPrompt();
         }else if(mode==RESET_GAME){
             m.resetMap();
+            point = 0;
             mode = RUN_GAME;
         }
 
@@ -385,8 +398,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     }
 
     public void drawCells(){
-        for(int y=0;y<4;y++){
-            for(int x=0;x<4;x++){
+        for(int y=0;y<3;y++){
+            for(int x=0;x<3;x++){
                 canvas.drawBitmap(number_img[interchange(m.getCell(x,y))],CELL_START_X+x*CELL_WIDTH,CELL_START_Y+y*CELL_WIDTH,null);
             }
         }
@@ -397,6 +410,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         paint.setARGB(255,242,105,100);
         paint.setTextSize(60);
         canvas.drawText("Game Over",getWidth()/2-150,getHeight()/3,paint);
+        canvas.drawText(Integer.toString(point)+"pt",getWidth()/2-150,getHeight()/3+70,paint);
         canvas.drawBitmap(restart_img,getWidth()/2-restart_img.getWidth()/2,getHeight()/2,paint);
     }
 
