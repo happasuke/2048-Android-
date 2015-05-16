@@ -53,6 +53,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
 
     //picture
+    private Bitmap restart_img = BitmapFactory.decodeResource(getResources(),R.drawable.restart_button);
     private Bitmap[] number_img={
             BitmapFactory.decodeResource(getResources(),R.drawable.cell0),
             BitmapFactory.decodeResource(getResources(),R.drawable.cell2),
@@ -85,6 +86,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     //surfaceCreateが再描画されたときに初期設定を再びやらせないため
     private int isFirstCreate=0;
+
+    //restart時にrestart button がタッチされたかどうかを判断するため
+    private boolean restartButtonTouched=false;
 
     public GameView(Context context){
         super(context);
@@ -134,6 +138,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         Log.d("donatu","isFirstCreated" + isFirstCreate);
         if(isFirstCreate==0) {
             init();
+//            setIreg();
+
             isFirstCreate = 1;
         }
 
@@ -142,6 +148,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         thread = new Thread(this);
         thread.start();
 
+        mode = RUN_GAME;
     }
 
 
@@ -175,161 +182,179 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     @Override
     public boolean onTouchEvent(MotionEvent event){
 
-        //タッチされた瞬間
-        if(event.getAction()==MotionEvent.ACTION_DOWN){
-            startx = (int)event.getX();
-            starty = (int)event.getY();
-            isTouchProcess = false;
+        Log.d("donatu","mode:"+mode);
+        Log.d("donatu","x:"+event.getX()+" y:"+event.getY());
 
-        //移動している間
-        }else if(event.getAction()==MotionEvent.ACTION_MOVE){
-            endx = (int)event.getX();
-            endy = (int)event.getY();
+        if(mode==RUN_GAME) {
 
-            float segmentx = endx-startx;
-            float segmenty = endy-starty;
+            //タッチされた瞬間
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                startx = (int) event.getX();
+                starty = (int) event.getY();
+                isTouchProcess = false;
 
-            if(leastDistance < Math.sqrt(Math.pow(segmentx,2)+Math.pow(segmenty,2))) {
+                //移動している間
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                endx = (int) event.getX();
+                endy = (int) event.getY();
 
-                if(isTouchProcess == false) {
+                float segmentx = endx - startx;
+                float segmenty = endy - starty;
 
-                    isTouchProcess = true;
+                if (leastDistance < Math.sqrt(Math.pow(segmentx, 2) + Math.pow(segmenty, 2))) {
 
-                    //vertical
-                    if (Math.abs(segmenty) > Math.abs(segmentx)) {
-                        //下
-                        if (segmenty > 0) {
-                            Log.d("donatu", "flick under");
-                            direction = DOWN;
+                    if (isTouchProcess == false) {
 
-                            for (int i=0;i<4;i++) {
-                                for(int k=0;k<4;k++)markMap[k] = 0;
-                                for (int j=3;j>=0;j--) {
-                                    if (m.getCell(i,j)>0) {
-                                        t=j-1;
-                                        while (t!=2) {
-                                            ++t;
-                                            if (m.getCell(i,t)==m.getCell(i,t+1) && markMap[t+1]==0) {
-                                                markMap[t+1] = 1;
-                                                m.setDoubleCell(i,t+1);
-                                                m.setZeroCell(i,t);
-                                                isMoved = true;
-                                                break;
-                                            }else if(m.getCell(i,t+1)==0){
-                                                m.setCell(m.getCell(i,t),i,t+1);
-                                                m.setZeroCell(i,t);
-                                                isMoved = true;
+                        isTouchProcess = true;
+
+                        //vertical
+                        if (Math.abs(segmenty) > Math.abs(segmentx)) {
+                            //下
+                            if (segmenty > 0) {
+                                Log.d("donatu", "flick under");
+                                direction = DOWN;
+
+                                for (int i = 0; i < 4; i++) {
+                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
+                                    for (int j = 3; j >= 0; j--) {
+                                        if (m.getCell(i, j) > 0) {
+                                            t = j - 1;
+                                            while (t != 2) {
+                                                ++t;
+                                                if (m.getCell(i, t) == m.getCell(i, t + 1) && markMap[t + 1] == 0) {
+                                                    markMap[t + 1] = 1;
+                                                    m.setDoubleCell(i, t + 1);
+                                                    m.setZeroCell(i, t);
+                                                    isMoved = true;
+                                                    break;
+                                                } else if (m.getCell(i, t + 1) == 0) {
+                                                    m.setCell(m.getCell(i, t), i, t + 1);
+                                                    m.setZeroCell(i, t);
+                                                    isMoved = true;
+                                                }
+
                                             }
-
                                         }
                                     }
                                 }
+
+                            } else {
+                                //上
+                                Log.d("donatu", "flick upper");
+                                direction = UP;
+
+                                for (int i = 0; i < 4; i++) {
+                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
+                                    for (int j = 1; j < 4; j++) {
+                                        if (m.getCell(i, j) > 0) {
+                                            t = j + 1;
+                                            while (t != 1) {
+                                                --t;
+                                                if (m.getCell(i, t) == m.getCell(i, t - 1) && markMap[t - 1] == 0) {
+                                                    markMap[t - 1] = 1;
+                                                    m.setDoubleCell(i, t - 1);
+                                                    m.setZeroCell(i, t);
+                                                    isMoved = true;
+                                                    break;
+                                                } else if (m.getCell(i, t - 1) == 0) {
+                                                    m.setCell(m.getCell(i, t), i, t - 1);
+                                                    m.setZeroCell(i, t);
+                                                    isMoved = true;
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
 
+                            //horizontal
                         } else {
-                            //上
-                            Log.d("donatu", "flick upper");
-                            direction = UP;
+                            //右
+                            if (segmentx > 0) {
+                                Log.d("donatu", "flick right");
+                                direction = RIGHT;
 
-                            for (int i=0;i<4;i++) {
-                                for(int k=0;k<4;k++)markMap[k] = 0;
-                                for (int j=1;j<4;j++) {
-                                    if (m.getCell(i,j)>0) {
-                                        t=j+1;
-                                        while (t!=1) {
-                                            --t;
-                                            if (m.getCell(i,t)==m.getCell(i,t-1) && markMap[t-1]==0) {
-                                                markMap[t-1] = 1;
-                                                m.setDoubleCell(i,t-1);
-                                                m.setZeroCell(i,t);
-                                                isMoved = true;
-                                                break;
-                                            }else if(m.getCell(i,t-1)==0){
-                                                m.setCell(m.getCell(i,t),i,t-1);
-                                                m.setZeroCell(i,t);
-                                                isMoved = true;
+                                for (int i = 0; i < 4; i++) {
+                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
+                                    for (int j = 2; j >= 0; j--) {
+                                        if (m.getCell(j, i) > 0) {
+                                            t = j - 1;
+                                            while (t != 2) {
+                                                ++t;
+                                                if (m.getCell(t, i) == m.getCell(t + 1, i) && markMap[t + 1] == 0) {
+                                                    markMap[t + 1] = 1;
+                                                    m.setDoubleCell(t + 1, i);
+                                                    m.setZeroCell(t, i);
+                                                    isMoved = true;
+                                                    break;
+                                                } else if (m.getCell(t + 1, i) == 0) {
+                                                    m.setCell(m.getCell(t, i), t + 1, i);
+                                                    m.setZeroCell(t, i);
+                                                    isMoved = true;
+                                                }
+
                                             }
+                                        }
+                                    }
+                                }
 
+                                //左
+                            } else {
+                                Log.d("donatu", "flick left");
+                                direction = LEFT;
+
+                                for (int i = 0; i < 4; i++) {
+                                    for (int k = 0; k < 4; k++) markMap[k] = 0;
+                                    for (int j = 1; j < 4; j++) {
+                                        if (m.getCell(j, i) > 0) {
+                                            t = j + 1;
+                                            while (t != 1) {
+                                                --t;
+                                                if (m.getCell(t, i) == m.getCell(t - 1, i) && markMap[t - 1] == 0) {
+                                                    markMap[t - 1] = 1;
+                                                    m.setDoubleCell(t - 1, i);
+                                                    m.setZeroCell(t, i);
+                                                    isMoved = true;
+                                                    break;
+                                                } else if (m.getCell(t - 1, i) == 0) {
+                                                    m.setCell(m.getCell(t, i), t - 1, i);
+                                                    m.setZeroCell(t, i);
+                                                    isMoved = true;
+                                                }
+
+                                            }
                                         }
                                     }
                                 }
                             }
-
                         }
 
-                        //horizontal
-                    } else {
-                        //右
-                        if (segmentx > 0) {
-                            Log.d("donatu", "flick right");
-                            direction = RIGHT;
-
-                            for (int i=0;i<4;i++) {
-                                for(int k=0;k<4;k++)markMap[k] = 0;
-                                for (int j=2;j>=0;j--) {
-                                    if (m.getCell(j,i)>0) {
-                                        t=j-1;
-                                        while (t!=2) {
-                                            ++t;
-                                            if (m.getCell(t,i)==m.getCell(t+1,i) && markMap[t+1]==0) {
-                                                markMap[t+1] = 1;
-                                                m.setDoubleCell(t+1,i);
-                                                m.setZeroCell(t,i);
-                                                isMoved = true;
-                                                break;
-                                            }else if(m.getCell(t+1,i)==0){
-                                                m.setCell(m.getCell(t,i),t+1,i);
-                                                m.setZeroCell(t,i);
-                                                isMoved = true;
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-
-                        //左
-                        } else {
-                            Log.d("donatu", "flick left");
-                            direction = LEFT;
-
-                            for (int i=0;i<4;i++) {
-                                for(int k=0;k<4;k++)markMap[k] = 0;
-                                for (int j=1;j<4;j++) {
-                                    if (m.getCell(j,i)>0) {
-                                        t=j+1;
-                                        while (t!=1) {
-                                            --t;
-                                            if (m.getCell(t,i)==m.getCell(t-1,i) && markMap[t-1]==0) {
-                                                markMap[t-1] = 1;
-                                                m.setDoubleCell(t-1,i);
-                                                m.setZeroCell(t,i);
-                                                isMoved = true;
-                                                break;
-                                            }else if(m.getCell(t-1,i)==0){
-                                                m.setCell(m.getCell(t,i),t-1,i);
-                                                m.setZeroCell(t,i);
-                                                isMoved = true;
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
+                        if (isMoved == true) {
+                            m.genCell();
+                            isMoved = false;
                         }
-                    }
 
-                    if(isMoved==true){
-                        m.genCell();
-                        isMoved = false;
-                    }
+                        if(m.checkGameOver()==true){
+                            mode = END_GAME;
+                        }
 
+                    }
                 }
+
             }
 
+        }else if(mode==END_GAME){
+            float x = event.getX();
+            float y = event.getY();
+            if(getWidth()/2-restart_img.getWidth()/2<x && getWidth()/2+restart_img.getWidth()/2>x){
+                if(getHeight()/2<y && getHeight()/2+restart_img.getHeight()>y){
+                    restartButtonTouched = true;
+                    mode = RESET_GAME;
+                }
+            }
         }
-
-
 
         return true;
     }
@@ -341,7 +366,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         canvas.drawBitmap(back_img,back_src_rect,back_rect,paint);
 
-        drawCells();
+        if(mode==RUN_GAME) {
+            drawCells();
+        }else if(mode==END_GAME){
+            drawEndPrompt();
+        }else if(mode==RESET_GAME){
+            m.resetMap();
+            mode = RUN_GAME;
+        }
+
 
         getHolder().unlockCanvasAndPost(canvas);
 
@@ -357,6 +390,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 canvas.drawBitmap(number_img[interchange(m.getCell(x,y))],CELL_START_X+x*CELL_WIDTH,CELL_START_Y+y*CELL_WIDTH,null);
             }
         }
+    }
+
+    public void drawEndPrompt(){
+        //これだと端末によってばらつきが出るので画像を使おう
+        paint.setARGB(255,242,105,100);
+        paint.setTextSize(60);
+        canvas.drawText("Game Over",getWidth()/2-150,getHeight()/3,paint);
+        canvas.drawBitmap(restart_img,getWidth()/2-restart_img.getWidth()/2,getHeight()/2,paint);
     }
 
     public void setResources(){
@@ -383,5 +424,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(n==32768)return 15;
         if(n==65536)return 16;
         return 0;
+    }
+
+
+    public void setIreg(){
+        m.setCell(2,0,0);
+        m.setCell(32,0,1);
+        m.setCell(2,0,2);
+        m.setCell(32,0,3);
+        m.setCell(32,1,0);
+        m.setCell(2,1,1);
+        m.setCell(32,1,2);
+        m.setCell(32,1,3);
+        m.setCell(16,2,0);
+        m.setCell(64,2,1);
+        m.setCell(128,2,2);
+        m.setCell(1024,2,3);
+        m.setCell(16,3,0);
+        m.setCell(64,3,1);
+        m.setCell(128,3,2);
     }
 }

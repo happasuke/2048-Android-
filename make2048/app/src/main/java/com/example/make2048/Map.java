@@ -102,4 +102,16 @@ public class Map {
         }
     }
 
+
+    public void resetMap(){
+        for(int i=0;i<map_size;i++){
+           for(int j=0;j<map_size;j++){
+               map[i][j] = 0;
+           }
+        }
+
+        genCell();
+        genCell();
+    }
+
 }
