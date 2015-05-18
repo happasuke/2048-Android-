@@ -140,7 +140,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         Log.d("donatu","isFirstCreated" + isFirstCreate);
         if(isFirstCreate==0) {
             init();
-//            setIreg();
+            setIreg();
 
             isFirstCreate = 1;
         }
@@ -162,6 +162,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder){
+        Log.d("donatu","surface destroyed");
         thread = null;
     }
 
@@ -184,9 +185,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     @Override
     public boolean onTouchEvent(MotionEvent event){
 
-        Log.d("donatu","mode:"+mode);
+/*        Log.d("donatu","mode:"+mode);
         Log.d("donatu","x:"+event.getX()+" y:"+event.getY());
-
+*/
         if(mode==RUN_GAME) {
 
             //タッチされた瞬間
@@ -342,6 +343,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
                         if(m.checkGameOver()==true){
                             mode = END_GAME;
+
+                            Log.d("donatu","x:"+event.getX() + " y:"+event.getY());
+
+                            try{
+                                Thread.sleep(1500);
+                            }catch(Exception e){
+
+                            }
                         }
 
                     }
@@ -350,19 +359,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             }
 
         }else if(mode==END_GAME){
-            float x = event.getX();
-            float y = event.getY();
+            Log.d("donatu","motion type:"+event.getAction());
+            if(event.getAction()==MotionEvent.ACTION_DOWN) {
+                float x = event.getX();
+                float y = event.getY();
 
-            try{
-                Thread.sleep(200);
-            }catch(Exception e){
-
-            }
-
-            if(getWidth()/2-restart_img.getWidth()/2<x && getWidth()/2+restart_img.getWidth()/2>x){
-                if(getHeight()/2<y && getHeight()/2+restart_img.getHeight()>y){
-                    restartButtonTouched = true;
-                    mode = RESET_GAME;
+                if (getWidth() / 2 - restart_img.getWidth() / 2 < x && getWidth() / 2 + restart_img.getWidth() / 2 > x) {
+                    if (getHeight() / 2 < y && getHeight() / 2 + restart_img.getHeight() > y) {
+                        restartButtonTouched = true;
+                        mode = RESET_GAME;
+                        Log.d("donatu", "reset game");
+                    }
                 }
             }
 
@@ -384,6 +391,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             drawEndPrompt();
         }else if(mode==RESET_GAME){
             m.resetMap();
+            setIreg();
             point = 0;
             mode = RUN_GAME;
         }
@@ -445,17 +453,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         m.setCell(2,0,0);
         m.setCell(32,0,1);
         m.setCell(2,0,2);
-        m.setCell(32,0,3);
+//        m.setCell(32,0,3);
         m.setCell(32,1,0);
         m.setCell(2,1,1);
         m.setCell(32,1,2);
-        m.setCell(32,1,3);
+//        m.setCell(32,1,3);
         m.setCell(16,2,0);
         m.setCell(64,2,1);
-        m.setCell(128,2,2);
-        m.setCell(1024,2,3);
-        m.setCell(16,3,0);
-        m.setCell(64,3,1);
-        m.setCell(128,3,2);
+//        m.setCell(128,2,2);
+//        m.setCell(1024,2,3);
+//        m.setCell(16,3,0);
+//        m.setCell(64,3,1);
+//        m.setCell(128,3,2);
     }
 }
