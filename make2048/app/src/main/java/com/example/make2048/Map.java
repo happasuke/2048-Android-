@@ -62,16 +62,16 @@ public class Map {
     public boolean checkGameOver(){
         int isSpace=0,isntSameNum=0;
 
-        for (int i=0;i<3;i++) {
-            if (map[0][i]==0 || map[1][i]==0 || map[2][i]==0) {
+        for (int i=0;i<4;i++) {
+            if (map[0][i]==0 || map[1][i]==0 || map[2][i]==0 || map[3][i]==0) {
                 isSpace = 1;
             }
 
-            if(map[i][0]==map[i][1] || map[i][1]==map[i][2]){
+            if(map[i][0]==map[i][1] || map[i][1]==map[i][2] || map[i][2]==map[i][3]){
                 isntSameNum = 1;
             }
 
-            if(map[0][i]==map[1][i] || map[1][i]==map[2][i]){
+            if(map[0][i]==map[1][i] || map[1][i]==map[2][i] || map[2][i]==map[3][i]){
                 isntSameNum = 1;
             }
         }
