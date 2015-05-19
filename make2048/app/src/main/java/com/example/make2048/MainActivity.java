@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements alias{
             try{
                 Thread.sleep(sleep_time);
             }catch(Exception e){
-
+                Log.e("donatu","MainActivity Thread.sleep");
             }
         }
 
