@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -17,7 +18,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.Random;
-
 
 /**
  * Created by user09 on 2015/05/09.
@@ -32,6 +32,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     Canvas canvas;
     Thread thread=null;
     Paint paint;
+    TimerManager tm;
 
     Bitmap back_img = BitmapFactory.decodeResource(getResources(),R.drawable.whole);
     Random random;
@@ -40,6 +41,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     private int point;
     private int mode;
     private int table_size;
+    private float lefttime;
 
     //touch event
     private float density; //最低限の移動距離
@@ -106,15 +108,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     private void init(){
         point = 0;
+        lefttime = 0;
 
         isTouchProcess = false;
         random = new Random();
         mode = START_GAME;
         CELL_WIDTH = getWidth()/5;
         CELL_START_X = getWidth()/10;
-        CELL_START_Y = getHeight()/10;
+        CELL_START_Y = getHeight()/5;
 
         m = new Map(table_size);
+        tm = new TimerManager();
 
         //CELLの画像サイズ変更用
         Matrix matrix = new Matrix();
@@ -135,7 +139,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void surfaceCreated(SurfaceHolder holder){
         Log.d("donatu","surfaceCreated");
 
-        Log.d("donatu","isFirstCreated" + isFirstCreate);
+        Log.d("donatu","isFirstCreated " + isFirstCreate);
         if(isFirstCreate==0) {
             init();
 //            setIreg();
@@ -149,6 +153,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         thread.start();
 
         mode = RUN_GAME;
+        Log.d("donatu", "running game");
     }
 
 
@@ -168,8 +173,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     @Override
     public void run(){
         while(thread != null){
-/*            Update();
-*/            Draw();
+            Update();
+            Draw();
 
             try{
                 Thread.sleep(sleep_time);
@@ -186,6 +191,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 /*        Log.d("donatu","mode:"+mode);
         Log.d("donatu","x:"+event.getX()+" y:"+event.getY());
 */
+
         if(mode==RUN_GAME) {
 
             //タッチされた瞬間
@@ -384,6 +390,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         canvas.drawBitmap(back_img,back_src_rect,back_rect,paint);
 
         if(mode==RUN_GAME) {
+            drawScore();
+            drawLeftTime();
             drawCells();
         }else if(mode==END_GAME){
             drawEndPrompt();
@@ -396,8 +404,34 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         getHolder().unlockCanvasAndPost(canvas);
     }
 
-    public void Update(){
 
+    public void Update(){
+        if(mode==RUN_GAME){
+            //時間の計測
+            Log.d("donatu","get elipse");
+            lefttime = tm.getElipseTime();
+            Log.d("donatu","got elipse");
+
+            if(lefttime == -1){
+//                mode = END_GAME;
+            }
+
+        }
+    }
+
+
+    public void drawScore(){
+        paint.setARGB(255,236,240,241);
+        paint.setAntiAlias(true);
+        paint.setTextSize(CELL_START_Y / 4);
+        canvas.drawText("score",CELL_START_X+10,CELL_START_Y/3,paint);
+        canvas.drawText(Integer.toString(point)+" pt",CELL_START_X+10,CELL_START_Y/3*2,paint);
+    }
+
+
+    public void drawLeftTime(){
+        canvas.drawText("time",CELL_START_X+getWidth()/2,CELL_START_Y/3,paint);
+        canvas.drawText(Float.toString(lefttime),CELL_START_X+getWidth()/2,CELL_START_Y/3*2,paint);
     }
 
     public void drawCells(){
@@ -408,14 +442,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         }
     }
 
+
     public void drawEndPrompt(){
-        //これだと端末によってばらつきが出るので画像を使おう
         paint.setARGB(255,242,105,100);
         paint.setTextSize(60);
         canvas.drawText("Game Over",getWidth()/2-150,getHeight()/3,paint);
         canvas.drawText(Integer.toString(point)+"pt",getWidth()/2-150,getHeight()/3+70,paint);
         canvas.drawBitmap(restart_img,getWidth()/2-restart_img.getWidth()/2,getHeight()/2,paint);
     }
+
 
     public int interchange(int n){
         if (n==0)return 0;
@@ -443,17 +478,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         m.setCell(2,0,0);
         m.setCell(32,0,1);
         m.setCell(2,0,2);
-//        m.setCell(32,0,3);
+        m.setCell(32,0,3);
         m.setCell(32,1,0);
         m.setCell(2,1,1);
         m.setCell(32,1,2);
-//        m.setCell(32,1,3);
+        m.setCell(32,1,3);
         m.setCell(16,2,0);
         m.setCell(64,2,1);
-//        m.setCell(128,2,2);
-//        m.setCell(1024,2,3);
-//        m.setCell(16,3,0);
-//        m.setCell(64,3,1);
-//        m.setCell(128,3,2);
+        m.setCell(128,2,2);
+        m.setCell(1024,2,3);
+        m.setCell(16,3,0);
+        m.setCell(64,3,1);
+        m.setCell(128,3,2);
     }
 }
