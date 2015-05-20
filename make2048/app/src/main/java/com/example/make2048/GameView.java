@@ -57,6 +57,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     //picture
     private Bitmap restart_img = BitmapFactory.decodeResource(getResources(),R.drawable.restart_button);
+    private Bitmap mini_title_img = BitmapFactory.decodeResource(getResources(),R.drawable.mini);
     private Bitmap[] number_img={
             BitmapFactory.decodeResource(getResources(),R.drawable.cell0),
             BitmapFactory.decodeResource(getResources(),R.drawable.cell2),
@@ -399,6 +400,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         canvas.drawBitmap(back_img,back_src_rect,back_rect,paint);
 
         if(mode==RUN_GAME) {
+            drawMiniTitle();
             drawScore();
             drawLeftTime();
             drawCells();
@@ -452,6 +454,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         canvas.drawText(Float.toString(lefttime),CELL_START_X,CELL_START_Y/3+60,paint);
     }
 
+
+    public void drawMiniTitle(){
+        paint.setARGB(255,47,205,180);
+        paint.setTextSize(CELL_START_Y/3);
+        canvas.drawText("2048",WIDTH/2-30,CELL_START_Y/3+10,paint);
+        canvas.drawText("TimeAtack",WIDTH/2-30,CELL_START_Y/3+70,paint);
+    }
 
     public void drawCells(){
         for(int y=0;y<4;y++){
