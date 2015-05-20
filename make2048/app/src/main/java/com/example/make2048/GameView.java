@@ -26,8 +26,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     private Rect back_src_rect;
     private Rect back_rect;
-    private Rect cell_src_rect;
-    private Rect cell_rect;
 
     Canvas canvas;
     Thread thread=null;
@@ -57,7 +55,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     //picture
     private Bitmap restart_img = BitmapFactory.decodeResource(getResources(),R.drawable.restart_button);
-    private Bitmap mini_title_img = BitmapFactory.decodeResource(getResources(),R.drawable.mini);
     private Bitmap[] number_img={
             BitmapFactory.decodeResource(getResources(),R.drawable.cell0),
             BitmapFactory.decodeResource(getResources(),R.drawable.cell2),
@@ -198,10 +195,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-
-/*        Log.d("donatu","mode:"+mode);
-        Log.d("donatu","x:"+event.getX()+" y:"+event.getY());
-*/
 
         if(mode==RUN_GAME) {
 
