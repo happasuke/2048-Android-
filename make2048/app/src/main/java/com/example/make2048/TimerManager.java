@@ -5,12 +5,14 @@ import android.util.Log;
 /**
  * Created by 葉介 on 2015/05/19.
  */
-public class TimerManager {
+public class TimerManager implements alias{
     private long start;
+    private long timelimit;
+
     TimerManager(){
         Log.d("donatu", "start timer");
         start = System.currentTimeMillis();
-        Log.d("donatu","started timer");
+        timelimit = TIME_LIMIT;
     }
 
     public void reStartTime(){
@@ -18,10 +20,8 @@ public class TimerManager {
     }
 
     public float getElipseTime(){
-        Log.d("donatu","getting elipse");
         long t = System.currentTimeMillis()-start;
-        Log.d("donatu","got elipse");
         t /= 100;
-        return (float)(t/10.0);
+        return (float)(timelimit-(t/10.0));
     }
 }

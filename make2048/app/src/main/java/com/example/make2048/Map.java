@@ -96,7 +96,7 @@ public class Map {
 
     public int genNum(){
         if(random.nextInt(match)==1){
-            return 2;
+            return 4;
         }else{
             return 2;
         }

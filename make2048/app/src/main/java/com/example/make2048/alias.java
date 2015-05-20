@@ -17,4 +17,7 @@ public interface alias {
     public final int END_GAME           = 2;
     public final int RESET_GAME         = 3;
 
+    //time manager
+    public final int TIME_LIMIT = 30;
+
 }

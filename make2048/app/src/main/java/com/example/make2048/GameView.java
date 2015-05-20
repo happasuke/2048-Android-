@@ -39,6 +39,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     Map m;
 
     private int point;
+    private int best_point;
     private int mode;
     private int table_size;
     private float lefttime;
@@ -76,6 +77,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             BitmapFactory.decodeResource(getResources(),R.drawable.cell65536),
     };
 
+    //screen
+    int WIDTH;
+    int HEIGHT;
+
+
     //cell
     public int CELL_WIDTH;
     public int CELL_START_X;
@@ -108,11 +114,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     private void init(){
         point = 0;
+        best_point = 0;
         lefttime = 0;
+
 
         isTouchProcess = false;
         random = new Random();
         mode = START_GAME;
+        WIDTH = getWidth();
+        HEIGHT = getHeight();
         CELL_WIDTH = getWidth()/5;
         CELL_START_X = getWidth()/10;
         CELL_START_Y = getHeight()/5;
@@ -383,7 +393,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     }
 
 
-
     public void Draw(){
         canvas = getHolder().lockCanvas();
 
@@ -396,8 +405,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         }else if(mode==END_GAME){
             drawEndPrompt();
         }else if(mode==RESET_GAME){
+            if(point > best_point){
+                best_point = point;
+            }
             m.resetMap();
             point = 0;
+            tm.reStartTime();
             mode = RUN_GAME;
         }
 
@@ -408,12 +421,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void Update(){
         if(mode==RUN_GAME){
             //時間の計測
-            Log.d("donatu","get elipse");
             lefttime = tm.getElipseTime();
-            Log.d("donatu","got elipse");
+            Log.d("donatu","lefttime:"+lefttime);
 
-            if(lefttime == -1){
-//                mode = END_GAME;
+            if(lefttime <= 0){
+                mode = END_GAME;
             }
 
         }
@@ -424,15 +436,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         paint.setARGB(255,236,240,241);
         paint.setAntiAlias(true);
         paint.setTextSize(CELL_START_Y / 4);
-        canvas.drawText("score",CELL_START_X+10,CELL_START_Y/3,paint);
-        canvas.drawText(Integer.toString(point)+" pt",CELL_START_X+10,CELL_START_Y/3*2,paint);
+
+        //current score
+        canvas.drawText("now",CELL_START_X+10,HEIGHT/5*4,paint);
+        canvas.drawText(Integer.toString(point)+" pt",CELL_START_X+10,HEIGHT/5*4+60,paint);
+
+        //best score
+        canvas.drawText("best",WIDTH/2,HEIGHT/5*4,paint);
+        canvas.drawText(Integer.toString(best_point),WIDTH/2,HEIGHT/5*4+60,paint);
     }
 
 
     public void drawLeftTime(){
-        canvas.drawText("time",CELL_START_X+getWidth()/2,CELL_START_Y/3,paint);
-        canvas.drawText(Float.toString(lefttime),CELL_START_X+getWidth()/2,CELL_START_Y/3*2,paint);
+        canvas.drawText("time",CELL_START_X,CELL_START_Y/3,paint);
+        canvas.drawText(Float.toString(lefttime),CELL_START_X,CELL_START_Y/3+60,paint);
     }
+
 
     public void drawCells(){
         for(int y=0;y<4;y++){
@@ -446,9 +465,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void drawEndPrompt(){
         paint.setARGB(255,242,105,100);
         paint.setTextSize(60);
-        canvas.drawText("Game Over",getWidth()/2-150,getHeight()/3,paint);
-        canvas.drawText(Integer.toString(point)+"pt",getWidth()/2-150,getHeight()/3+70,paint);
-        canvas.drawBitmap(restart_img,getWidth()/2-restart_img.getWidth()/2,getHeight()/2,paint);
+        canvas.drawText("Game Over",WIDTH/2-150,HEIGHT/3,paint);
+        canvas.drawText(Integer.toString(point)+"pt",WIDTH/2-150,HEIGHT/3+70,paint);
+        canvas.drawBitmap(restart_img,WIDTH/2-restart_img.getWidth()/2,HEIGHT/2,paint);
     }
 
 
