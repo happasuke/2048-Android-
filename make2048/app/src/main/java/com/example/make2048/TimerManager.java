@@ -12,7 +12,6 @@ public class TimerManager implements alias{
     TimerManager(){
         Log.d("donatu", "start timer");
         start = System.currentTimeMillis();
-        timelimit = TIME_LIMIT;
     }
 
     public void reStartTime(){
@@ -22,6 +21,6 @@ public class TimerManager implements alias{
     public float getElipseTime(){
         long t = System.currentTimeMillis()-start;
         t /= 100;
-        return (float)(timelimit-(t/10.0));
+        return (float)(t/10.0);
     }
 }

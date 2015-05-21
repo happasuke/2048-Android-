@@ -37,10 +37,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     Map m;
 
     private int point;
-    private int best_point;
+    private float best_point;
     private int mode;
     private int table_size;
     private float lefttime;
+    private int isBestCell;
 
     //touch event
     private float density; //最低限の移動距離
@@ -114,6 +115,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         point = 0;
         best_point = 0;
         lefttime = 0;
+        isBestCell = 0;
 
 
         isTouchProcess = false;
@@ -233,6 +235,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                             while (t != 2) {
                                                 ++t;
                                                 if (m.getCell(i, t) == m.getCell(i, t + 1) && markMap[t + 1] == 0) {
+                                                    checkBestCell(m.getCell(i,t));
                                                     markMap[t + 1] = 1;
                                                     m.setDoubleCell(i, t + 1);
                                                     m.setZeroCell(i, t);
@@ -262,6 +265,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                             while (t != 1) {
                                                 --t;
                                                 if (m.getCell(i, t) == m.getCell(i, t - 1) && markMap[t - 1] == 0) {
+                                                    checkBestCell(m.getCell(i,t));
                                                     markMap[t - 1] = 1;
                                                     m.setDoubleCell(i, t - 1);
                                                     m.setZeroCell(i, t);
@@ -295,6 +299,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                             while (t != 2) {
                                                 ++t;
                                                 if (m.getCell(t, i) == m.getCell(t + 1, i) && markMap[t + 1] == 0) {
+                                                    checkBestCell(m.getCell(t,i));
                                                     markMap[t + 1] = 1;
                                                     m.setDoubleCell(t + 1, i);
                                                     m.setZeroCell(t, i);
@@ -324,6 +329,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                             while (t != 1) {
                                                 --t;
                                                 if (m.getCell(t, i) == m.getCell(t - 1, i) && markMap[t - 1] == 0) {
+                                                    checkBestCell(m.getCell(t,i));
                                                     markMap[t - 1] = 1;
                                                     m.setDoubleCell(t - 1, i);
                                                     m.setZeroCell(t, i);
@@ -367,7 +373,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             }
 
         }else if(mode==END_GAME){
-            Log.d("donatu","motion type:"+event.getAction());
             if(event.getAction()==MotionEvent.ACTION_DOWN) {
                 float x = event.getX();
                 float y = event.getY();
@@ -376,7 +381,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                     if (getHeight() / 2 < y && getHeight() / 2 + restart_img.getHeight() > y) {
                         restartButtonTouched = true;
                         mode = RESET_GAME;
-                        Log.d("donatu", "reset game");
                     }
                 }
             }
@@ -400,11 +404,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         }else if(mode==END_GAME){
             drawEndPrompt();
         }else if(mode==RESET_GAME){
-            if(point > best_point){
-                best_point = point;
+
+            if(lefttime < best_point||best_point==0){
+                best_point = lefttime;
             }
+
             m.resetMap();
-            point = 0;
+            point = isBestCell = 0;
             tm.reStartTime();
             mode = RUN_GAME;
         }
@@ -417,9 +423,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(mode==RUN_GAME){
             //時間の計測
             lefttime = tm.getElipseTime();
-            Log.d("donatu","lefttime:"+lefttime);
-
-            if(lefttime <= 0){
+            Log.d("donatu","best cell:"+isBestCell);
+            if(isBestCell==BEST_CELL){
+                Log.d("donatu","to end game");
                 mode = END_GAME;
             }
 
@@ -438,7 +444,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         //best score
         canvas.drawText("best",WIDTH/2,HEIGHT/5*4,paint);
-        canvas.drawText(Integer.toString(best_point),WIDTH/2,HEIGHT/5*4+60,paint);
+        canvas.drawText(Float.toString(best_point)+" s",WIDTH/2,HEIGHT/5*4+60,paint);
     }
 
 
@@ -467,11 +473,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void drawEndPrompt(){
         paint.setARGB(255,242,105,100);
         paint.setTextSize(60);
-        canvas.drawText("Game Over",WIDTH/2-150,HEIGHT/3,paint);
-        canvas.drawText(Integer.toString(point)+"pt",WIDTH/2-150,HEIGHT/3+70,paint);
+        canvas.drawText("NECESSARY TIME",WIDTH/2-70,HEIGHT/3,paint);
+        canvas.drawText(Float.toString(lefttime)+" s",WIDTH/2-150,HEIGHT/3+70,paint);
         canvas.drawBitmap(restart_img,WIDTH/2-restart_img.getWidth()/2,HEIGHT/2,paint);
     }
 
+
+    public void checkBestCell(int n){
+        n*=2;
+        if(n>isBestCell){
+            isBestCell = n;
+        }
+    }
 
     public int interchange(int n){
         if (n==0)return 0;

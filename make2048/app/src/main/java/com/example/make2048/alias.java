@@ -20,4 +20,6 @@ public interface alias {
     //time manager
     public final int TIME_LIMIT = 30;
 
+    public final int BEST_CELL = 2048;
+
 }
