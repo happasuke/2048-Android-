@@ -160,7 +160,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         thread = new Thread(this);
         thread.start();
 
-        mode = RUN_GAME;
+        mode = RESET_GAME;
         Log.d("donatu", "running game");
     }
 
