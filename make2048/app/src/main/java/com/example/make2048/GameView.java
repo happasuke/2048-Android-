@@ -22,6 +22,7 @@ import java.util.Random;
 /**
  * Created by user09 on 2015/05/09.
  */
+
 public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runnable,alias{
 
     private Rect back_src_rect;
@@ -152,7 +153,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         Log.d("donatu","isFirstCreated " + isFirstCreate);
         if(isFirstCreate==0) {
             init();
-//            setIreg();
+            setIreg();
 
             isFirstCreate = 1;
         }
@@ -428,7 +429,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 Log.d("donatu","to end game");
                 mode = END_GAME;
             }
-
         }
     }
 
@@ -449,6 +449,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
 
     public void drawLeftTime(){
+        paint.setTextAlign(Paint.Align.CENTER);
+
         canvas.drawText("time",CELL_START_X,CELL_START_Y/3,paint);
         canvas.drawText(Float.toString(lefttime),CELL_START_X,CELL_START_Y/3+60,paint);
     }
@@ -457,8 +459,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void drawMiniTitle(){
         paint.setARGB(255,47,205,180);
         paint.setTextSize(CELL_START_Y/3);
-        canvas.drawText("2048",WIDTH/2-30,CELL_START_Y/3+10,paint);
-        canvas.drawText("TimeAtack",WIDTH/2-30,CELL_START_Y/3+70,paint);
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        canvas.drawText("2048",WIDTH/2,CELL_START_Y/3+10,paint);
+        canvas.drawText("TimeAtack",WIDTH/2,CELL_START_Y/3+70,paint);
     }
 
     public void drawCells(){
@@ -473,8 +477,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void drawEndPrompt(){
         paint.setARGB(255,242,105,100);
         paint.setTextSize(60);
-        canvas.drawText("NECESSARY TIME",WIDTH/2-70,HEIGHT/3,paint);
-        canvas.drawText(Float.toString(lefttime)+" s",WIDTH/2-150,HEIGHT/3+70,paint);
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        canvas.drawText("NECESSARY TIME",WIDTH/2,HEIGHT/3,paint);
+        canvas.drawText(Float.toString(lefttime)+" s",WIDTH/2,HEIGHT/3+70,paint);
         canvas.drawBitmap(restart_img,WIDTH/2-restart_img.getWidth()/2,HEIGHT/2,paint);
     }
 
