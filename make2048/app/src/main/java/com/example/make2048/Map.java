@@ -124,4 +124,15 @@ public class Map {
         genCell();
     }
 
+    public boolean is2048(){
+        for(int i=0;i<map_size;i++){
+            for(int j=0;j<map_size;j++){
+                if(map[i][j]==2048){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

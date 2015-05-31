@@ -152,7 +152,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void surfaceCreated(SurfaceHolder holder){
         Log.d("donatu","surfaceCreated");
 
-        Log.d("donatu","isFirstCreated " + isFirstCreate);
         if(isFirstCreate==0) {
             init();
 //            setIreg();
@@ -405,12 +404,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             drawLeftTime();
             drawCells();
         }else if(mode==END_GAME){
+            if(m.is2048()&&(lefttime < best_point||best_point==0)){
+                best_point = lefttime;
+            }
             drawEndPrompt();
         }else if(mode==RESET_GAME){
 
-            if(lefttime < best_point||best_point==0){
-                best_point = lefttime;
-            }
 
             m.resetMap();
             point = isBestCell = 0;
@@ -440,11 +439,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         paint.setAntiAlias(true);
         paint.setTextSize(CELL_START_Y / 4);
 
-        //current score
-        canvas.drawText("now",CELL_START_X+10,HEIGHT/5*4,paint);
-        canvas.drawText(Integer.toString(point)+" pt",CELL_START_X+10,HEIGHT/5*4+60,paint);
 
-        //best score
+        //best time
         canvas.drawText("best",WIDTH/2,HEIGHT/5*4,paint);
         canvas.drawText(Float.toString(best_point)+" s",WIDTH/2,HEIGHT/5*4+60,paint);
     }
